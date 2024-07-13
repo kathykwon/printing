@@ -21,6 +21,7 @@ class PrintingCli:
         self._add_get_insider_info(subparsers)
         self._add_get_financials(subparsers)
         self._add_get_recs(subparsers)
+        self._add_get_options(subparsers)
 
         return parser
 
@@ -48,7 +49,7 @@ class PrintingCli:
 
         for symbol in symbols:
             stock = Printing(symbol)
-            pprint(stock.price)
+            stock.price
 
     #
     # news
@@ -93,13 +94,13 @@ class PrintingCli:
         subparser.add_argument(
             "--type",
             required=False,
-            help=f"'transacton' for insider transactions.",
+            help="'transacton' for insider transactions.",
         )
         subparser.add_argument(
             "--count",
             type=int,
             required=False,
-            help=f"Max row count to display.",
+            help="Max row count to display.",
         )
         subparser.set_defaults(func=self._do_get_insider_info)
 
@@ -130,7 +131,13 @@ class PrintingCli:
         subparser.add_argument(
             "--quarterly",
             action="store_true",
-            help=f"Get the quarterly report if set to True.",
+            help="Get the quarterly report if set to True.",
+        )
+        subparser.add_argument(
+            "--count",
+            type=int,
+            required=False,
+            help="Max row count to display.",
         )
         subparser.set_defaults(func=self._do_get_financials)
 
@@ -142,7 +149,7 @@ class PrintingCli:
 
         for symbol in symbols:
             stock = Printing(symbol)
-            stock.get_financials(args.quarterly)
+            stock.get_financials(args.count, args.quarterly)
 
     #
     # recs
@@ -158,6 +165,12 @@ class PrintingCli:
             required=False,
             help=f"The ticker symbol to look at. Looks at {DEFAULT} if not set.",
         )
+        subparser.add_argument(
+            "--count",
+            type=int,
+            required=False,
+            help="Max row count to display.",
+        )
         subparser.set_defaults(func=self._do_get_recs)
 
     def _do_get_recs(self, args: argparse.Namespace) -> None:
@@ -168,7 +181,49 @@ class PrintingCli:
 
         for symbol in symbols:
             stock = Printing(symbol)
-            stock.get_recommendations()
+            stock.get_recommendations(args.count)
+
+    #
+    # options
+    # Options information for the stock.
+    #
+
+    def _add_get_options(
+        self, subparsers: "argparse._SubParsersAction[argparse.ArgumentParser]"
+    ) -> None:
+        subparser = subparsers.add_parser("options", help="Gets options information.")
+        subparser.add_argument(
+            "--symbol",
+            required=False,
+            help=f"The ticker symbol to look at. Looks at {DEFAULT} if not set.",
+        )
+        subparser.add_argument(
+            "--type",
+            required=True,
+            help="Option type: 'call' or 'put'.",
+        )
+        subparser.add_argument(
+            "--date",
+            required=False,
+            help="Date in the format of 'YYYY-MM-DD'.",
+        )
+        subparser.add_argument(
+            "--count",
+            type=int,
+            required=False,
+            help="Max row count to display.",
+        )
+        subparser.set_defaults(func=self._do_get_options)
+
+    def _do_get_options(self, args: argparse.Namespace) -> None:
+        if args.symbol is None:
+            symbols = DEFAULT
+        else:
+            symbols = args.symbol.split(",")
+
+        for symbol in symbols:
+            stock = Printing(symbol)
+            stock.get_options(args.type, args.date, args.count)
 
 
 def printing_cli() -> None:

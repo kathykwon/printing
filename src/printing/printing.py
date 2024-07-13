@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 from enum import Enum
@@ -5,7 +6,6 @@ from pprint import pprint
 
 import pandas as pd
 import pyspark.sql.functions as F
-from pandas import DataFrame
 from pyspark.sql import DataFrame, SparkSession
 from yfinance import Ticker
 
@@ -16,6 +16,13 @@ LOGGER.setLevel(logging.INFO)
 class OptionType(Enum):
     CALL = "call"
     PUT = "put"
+
+    @classmethod
+    def parse(cls, value: object) -> "OptionType":
+        try:
+            return cls(value)
+        except ValueError as e:
+            raise ValueError(f"Option type '{value}' is not supported") from e
 
 
 class Printing:
@@ -38,12 +45,14 @@ class Printing:
     def today(self) -> str:
         return datetime.today().strftime("%Y-%m-%d")
 
-    @staticmethod
-    def display_df(df: DataFrame, count: int | None) -> None:
-        if count is None:
-            count = df.count()  # show all rows by default
-
-        df.show(count, False)
+    def display(self, data: DataFrame | dict, count: int | None = None):
+        """Wrapper for outputting data to CLI in a readable manner."""
+        if type(data) == dict:
+            print(json.dumps(data, indent=4))
+        elif type(data) == DataFrame:
+            if count is None:
+                count = data.count()  # show all rows by default
+            data.show(count, False)
 
     def get_history(self, lookback_months: int = 1) -> DataFrame:
         """Get historical market data."""
@@ -54,7 +63,7 @@ class Printing:
 
     @property
     def price(self) -> dict:
-        return {
+        data = {
             "current_price": self.ticker.info["currentPrice"],
             "open": self.ticker.info["open"],
             "day_high": self.ticker.info["dayHigh"],
@@ -64,28 +73,30 @@ class Printing:
             "target_mean_price": self.ticker.info["targetMeanPrice"],
             "target_median_price": self.ticker.info["targetMedianPrice"],
         }
+        self.display(data)
+        return data
 
     @property
     def news(self) -> list[dict]:
         news = []
         for article in self.ticker.news:
-            news.append(
-                {
-                    "title": article["title"],
-                    "related_tickers": article["relatedTickers"],
-                    "url": article["link"],
-                }
-            )
+            data = {
+                "title": article["title"],
+                "related_tickers": article["relatedTickers"],
+                "url": article["link"],
+            }
+            news.append(data)
 
-        for n in news:
-            print(f"{n["title"]}\n")
-            print(f"{n["url"]}\n")
-            print(f"Related to: {n["related_tickers"]}")
-            print("===================================================")
+            print(f"{data["title"]}\n")
+            print(f"{data["url"]}\n")
+            print(f"Related to: {data["related_tickers"]}")
+            print(
+                "================================================================================"
+            )
 
         return news
 
-    def get_options_data(self, type: OptionType, date: str | None = None):
+    def get_options(self, type: str, date: str | None, count: int | None) -> DataFrame:
         """Get option chain for specific expiration.
 
         Defaults to today.
@@ -93,9 +104,28 @@ class Printing:
         _date = date or self.today
         options = self.ticker.option_chain(_date)
 
-        if type == OptionType.CALL:
-            return options.calls
-        return options.puts
+        option_type = OptionType.parse(type)
+        if option_type == OptionType.CALL:
+            df = self.spark.createDataFrame(options.calls)
+        else:
+            df = self.spark.createDataFrame(options.puts)
+
+        df = df.select(
+            F.col("contractSymbol").alias("contract"),
+            F.col("lastTradeDate").alias("last_trade_date"),
+            F.col("strike"),
+            F.col("lastPrice").alias("last_price"),
+            F.col("bid"),
+            F.col("ask"),
+            F.col("change").alias("change"),
+            F.col("percentChange").alias("percent_change"),
+            F.col("volume"),
+            F.col("openInterest").alias("open_interest"),
+            F.col("impliedVolatility").alias("volatility"),
+        )
+
+        self.display(df, count)
+        return df
 
     def full_info(self) -> None:
         """Gets the full information for this company."""
@@ -118,7 +148,7 @@ class Printing:
         """Get latest insider transaction data."""
         df = self.spark.createDataFrame(self.ticker.insider_purchases)
 
-        self.display_df(df, count)
+        self.display(df, count)
         return df
 
     def _get_insider_transactions(self, count: int | None) -> DataFrame:
@@ -134,38 +164,54 @@ class Printing:
             F.col("Start Date").alias("transaction_date"),
         ).withColumn("USD", F.format_number("Value", 0))
 
-        self.display_df(df, count)
+        self.display(df, count)
         return df
 
-    def get_financials(self, is_quarterly: bool = False) -> None:
+    def get_financials(self, count: int | None, is_quarterly: bool = False) -> None:
         """Show financial data.
 
         See `Ticker.get_income_stmt()` for more options.
         """
         if is_quarterly:
-            print("Quarterly Income Statement:")
-            pprint(self.ticker.quarterly_income_stmt)
-            print("Quarterly Balance sheet:")
-            pprint(self.ticker.quarterly_balance_sheet)
-            print("Quarterly Cash Flow:")
-            pprint(self.ticker.quarterly_cashflow)
-            return
+            income_df = self.spark.createDataFrame(self.ticker.quarterly_income_stmt)
+            balance_df = self.spark.createDataFrame(self.ticker.quarterly_balance_sheet)
+            cashflow_df = self.spark.createDataFrame(self.ticker.quarterly_cashflow)
+        else:
+            income_df = self.spark.createDataFrame(self.ticker.income_stmt)
+            balance_df = self.spark.createDataFrame(self.ticker.balance_sheet)
+            cashflow_df = self.spark.createDataFrame(self.ticker.cashflow)
 
         print("Income Statement:")
-        pprint(self.ticker.income_stmt)
-        print("Balance sheet:")
-        pprint(self.ticker.balance_sheet)
-        print("Cash flow:")
-        pprint(self.ticker.cashflow)
+        self.display(income_df, count)
 
-    def get_recommendations(self):
+        print("Balance sheet:")
+        self.display(balance_df, count)
+
+        print("Cash flow:")
+        self.display(cashflow_df, count)
+
+    def get_recommendations(self, count: int | None) -> DataFrame:
         """Show recommendations."""
+        # recs summary
+        recs_df = self.spark.createDataFrame(self.ticker.recommendations)
+        print("Summary:")
+        self.display(recs_df, count)
+
+        # upgrades/downgrades
+        pdf = self.ticker.upgrades_downgrades.rename_axis(["GradeDate"]).reset_index()
+        movement_df = self.spark.createDataFrame(pdf)
+
+        movement_df = movement_df.select(
+            F.col("GradeDate").alias("date"),
+            F.col("Firm").alias("firm"),
+            F.col("FromGrade").alias("from"),
+            F.col("ToGrade").alias("to"),
+            F.col("Action").alias("action"),
+        )
+
         print("Recommendations:")
-        pprint(self.ticker.recommendations)
-        print("\n\nRecommendations Summary:")
-        pprint(self.ticker.recommendations_summary)
-        print("\n\nUpgrades/downgrades:")
-        pprint(self.ticker.upgrades_downgrades)
+        self.display(movement_df, count)
+        return movement_df
 
     # def show_actions(self) -> None:
     #     # show actions (dividends, splits, capital gains)
