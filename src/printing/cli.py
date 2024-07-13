@@ -36,6 +36,7 @@ class PrintingCli:
         subparser = subparsers.add_parser("price", help="Gets the current stock price.")
         subparser.add_argument(
             "--symbol",
+            "-s",
             required=False,
             help=f"The ticker symbol to look at. Looks at {DEFAULT} if not set.",
         )
@@ -88,6 +89,7 @@ class PrintingCli:
         subparser = subparsers.add_parser("insider", help="Gets insider information.")
         subparser.add_argument(
             "--symbol",
+            "-s",
             required=False,
             help=f"The ticker symbol to look at. Looks at {DEFAULT} if not set.",
         )
@@ -98,6 +100,7 @@ class PrintingCli:
         )
         subparser.add_argument(
             "--count",
+            "-c",
             type=int,
             required=False,
             help="Max row count to display.",
@@ -125,6 +128,7 @@ class PrintingCli:
         subparser = subparsers.add_parser("financials", help="Gets financial information.")
         subparser.add_argument(
             "--symbol",
+            "-s",
             required=False,
             help=f"The ticker symbol to look at. Looks at {DEFAULT} if not set.",
         )
@@ -135,6 +139,7 @@ class PrintingCli:
         )
         subparser.add_argument(
             "--count",
+            "-c",
             type=int,
             required=False,
             help="Max row count to display.",
@@ -162,11 +167,13 @@ class PrintingCli:
         subparser = subparsers.add_parser("recs", help="Gets recs information.")
         subparser.add_argument(
             "--symbol",
+            "-s",
             required=False,
             help=f"The ticker symbol to look at. Looks at {DEFAULT} if not set.",
         )
         subparser.add_argument(
             "--count",
+            "-c",
             type=int,
             required=False,
             help="Max row count to display.",
@@ -194,6 +201,7 @@ class PrintingCli:
         subparser = subparsers.add_parser("options", help="Gets options information.")
         subparser.add_argument(
             "--symbol",
+            "-s",
             required=False,
             help=f"The ticker symbol to look at. Looks at {DEFAULT} if not set.",
         )
@@ -209,6 +217,7 @@ class PrintingCli:
         )
         subparser.add_argument(
             "--count",
+            "-c",
             type=int,
             required=False,
             help="Max row count to display.",

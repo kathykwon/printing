@@ -29,7 +29,7 @@ class Printing:
     """Wrapper for yfinance API."""
 
     def __init__(self, symbol: str) -> None:
-        self._symbol = symbol
+        self._symbol = symbol.upper()
 
     @property
     def spark(self) -> SparkSession:
