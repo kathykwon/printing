@@ -10,6 +10,9 @@ packages = [{include = "printing", from = "src"}]
 python = "^3.12"
 python-dotenv = "^1.0.1"
 yfinance = "^0.2.40"
+numpy = "^2.0.0"
+pyspark = "^3.5.1"
+setuptools = "^70.3.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -17,7 +20,14 @@ black = "^24.4.2"
 isort = "^5.13.2"
 
 [tool.poetry.scripts]
-printing = 'printing.printing:printing_cli'
+printing = 'printing.cli:printing_cli'
+
+[tool.black]
+line-length = 100
+target-version = ['py312']
+
+[tool.isort]
+profile = 'black'
 
 [build-system]
 requires = ["poetry-core"]
