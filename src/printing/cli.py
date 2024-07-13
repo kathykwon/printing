@@ -1,13 +1,15 @@
 import argparse
 import logging
-from pprint import pprint
+import os
+
+import dotenv
 
 from printing.printing import Printing
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
 
-DEFAULT = ["MSFT", "AAPL", "TSLA", "NVDA", "AMD"]
+DEFAULT = "nvda,tsla"
 
 
 class PrintingCli:
@@ -24,6 +26,19 @@ class PrintingCli:
         self._add_get_options(subparsers)
 
         return parser
+
+    def symbols(self, symbol: str | None) -> list[str]:
+        """Gets the symbols as a list of strings from the correct location.
+
+        Prioritizes CLI argument, then .env, then hardcoded default.
+        """
+        if symbol:
+            symbols = symbol
+        else:
+            symbols = os.environ.get("DEFAULT") or DEFAULT
+        symbols = symbols.split(",")
+
+        return symbols
 
     #
     # price
@@ -43,10 +58,7 @@ class PrintingCli:
         subparser.set_defaults(func=self._do_get_price)
 
     def _do_get_price(self, args: argparse.Namespace) -> None:
-        if args.symbol is None:
-            symbols = DEFAULT
-        else:
-            symbols = args.symbol.split(",")
+        symbols = self.symbols(args.symbol)
 
         for symbol in symbols:
             stock = Printing(symbol)
@@ -69,10 +81,7 @@ class PrintingCli:
         subparser.set_defaults(func=self._do_get_news)
 
     def _do_get_news(self, args: argparse.Namespace) -> None:
-        if args.symbol is None:
-            symbols = DEFAULT
-        else:
-            symbols = args.symbol.split(",")
+        symbols = self.symbols(args.symbol)
 
         for symbol in symbols:
             stock = Printing(symbol)
@@ -103,15 +112,13 @@ class PrintingCli:
             "-c",
             type=int,
             required=False,
+            default=50,
             help="Max row count to display.",
         )
         subparser.set_defaults(func=self._do_get_insider_info)
 
     def _do_get_insider_info(self, args: argparse.Namespace) -> None:
-        if args.symbol is None:
-            symbols = DEFAULT
-        else:
-            symbols = args.symbol.split(",")
+        symbols = self.symbols(args.symbol)
 
         for symbol in symbols:
             stock = Printing(symbol)
@@ -147,10 +154,7 @@ class PrintingCli:
         subparser.set_defaults(func=self._do_get_financials)
 
     def _do_get_financials(self, args: argparse.Namespace) -> None:
-        if args.symbol is None:
-            symbols = DEFAULT
-        else:
-            symbols = args.symbol.split(",")
+        symbols = self.symbols(args.symbol)
 
         for symbol in symbols:
             stock = Printing(symbol)
@@ -176,15 +180,13 @@ class PrintingCli:
             "-c",
             type=int,
             required=False,
+            default=20,
             help="Max row count to display.",
         )
         subparser.set_defaults(func=self._do_get_recs)
 
     def _do_get_recs(self, args: argparse.Namespace) -> None:
-        if args.symbol is None:
-            symbols = DEFAULT
-        else:
-            symbols = args.symbol.split(",")
+        symbols = self.symbols(args.symbol)
 
         for symbol in symbols:
             stock = Printing(symbol)
@@ -225,10 +227,7 @@ class PrintingCli:
         subparser.set_defaults(func=self._do_get_options)
 
     def _do_get_options(self, args: argparse.Namespace) -> None:
-        if args.symbol is None:
-            symbols = DEFAULT
-        else:
-            symbols = args.symbol.split(",")
+        symbols = self.symbols(args.symbol)
 
         for symbol in symbols:
             stock = Printing(symbol)
@@ -236,11 +235,8 @@ class PrintingCli:
 
 
 def printing_cli() -> None:
+    dotenv.load_dotenv()
     cli = PrintingCli()
     parser = cli.get_arg_parser()
     args = parser.parse_args()
     args.func(args)
-
-
-def main() -> None:
-    printing_cli()

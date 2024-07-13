@@ -195,7 +195,7 @@ class Printing:
         """Show recommendations."""
         # recs summary
         recs_df = self.spark.createDataFrame(self.ticker.recommendations)
-        print("Summary:")
+        print(f"{self._symbol} Summary:")
         self.display(recs_df, count)
 
         # upgrades/downgrades
@@ -210,7 +210,7 @@ class Printing:
             F.col("Action").alias("action"),
         )
 
-        print("Recommendations:")
+        print(f"{self._symbol} Recommendations:")
         self.display(movement_df, count)
         return movement_df
 
