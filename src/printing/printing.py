@@ -4,7 +4,6 @@ from datetime import datetime
 from enum import Enum
 from pprint import pprint
 
-import pandas as pd
 import pyspark.sql.functions as F
 from pyspark.sql import DataFrame, SparkSession
 from yfinance import Ticker
@@ -45,7 +44,7 @@ class Printing:
     def today(self) -> str:
         return datetime.today().strftime("%Y-%m-%d")
 
-    def display(self, data: DataFrame | dict, count: int | None = None):
+    def display(self, data: DataFrame | dict, count: int | None = None) -> None:
         """Wrapper for outputting data to CLI in a readable manner."""
         if type(data) == dict:
             print(json.dumps(data, indent=4))
@@ -91,9 +90,7 @@ class Printing:
             print(f"{data["title"]}\n")
             print(f"{data["url"]}\n")
             print(f"Related to: {data["related_tickers"]}")
-            print(
-                "================================================================================"
-            )
+            print("==============================================================================")
 
         return news
 

@@ -75,6 +75,7 @@ class PrintingCli:
         subparser = subparsers.add_parser("news", help="Gets latest news.")
         subparser.add_argument(
             "--symbol",
+            "-s",
             required=False,
             help=f"The ticker symbol to look at. Looks at {DEFAULT} if not set.",
         )
