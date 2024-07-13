@@ -13,4 +13,8 @@ printing g's
 2. Run `printing -h` for help.
 
 # Quick start
-`printing price --symbol aapl` will display the price information for AAPL.
+`printing price --symbol aapl`
+will display the price information for AAPL.
+
+`printing options --symbol tsla --type call --date 2024-07-19 --count 10`
+will display 10 options information for tesla calls on that date
