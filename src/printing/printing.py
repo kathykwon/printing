@@ -1,6 +1,5 @@
 import argparse
 import logging
-import os
 from datetime import datetime
 from enum import Enum
 from pprint import pprint
@@ -306,5 +305,5 @@ def printing_cli() -> None:
     args.func(args)
 
 
-if __name__ == "__main__":
+def main() -> None:
     printing_cli()

@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "printing g's"
 authors = ["Kathy <krispleaf.co@gmail.com>"]
 readme = "README.md"
+packages = [{include = "printing", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -14,6 +15,9 @@ yfinance = "^0.2.40"
 [tool.poetry.group.dev.dependencies]
 black = "^24.4.2"
 isort = "^5.13.2"
+
+[tool.poetry.scripts]
+printing = 'printing.printing:printing_cli'
 
 [build-system]
 requires = ["poetry-core"]

@@ -7,3 +7,10 @@ printing g's
 3. `poetry env use 3.12`
 4. `pre-commit install`
 5. `cp env.default .env`
+
+# Run cli command
+1. `poetry install`
+2. Run `printing -h` for help.
+
+# Quick start
+`printing price --symbol aapl` will display the price information for AAPL.

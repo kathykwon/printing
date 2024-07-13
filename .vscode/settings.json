@@ -1,32 +1,12 @@
 {
     "editor.codeActionsOnSave": {
-        "source.organizeImports": true
+        "source.organizeImports": "explicit"
     },
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
     "editor.wordWrapColumn": 99,
-    "files.associations": {
-        ".env.*": "dotenv",
-        ".pylintrc": "shellscript",
-        "*.yaml.*": "yaml",
-        "*.yml.*": "yaml",
-        "**/target/**": ""
-    },
-    "files.exclude": {
-        "**/.ipynb_checkpoints": true,
-        "**/__pycache__": true,
-        "**/.cache": true,
-        "**/.coverage*": true,
-        "**/.mypy_cache": true,
-        "**/.pytest_cache": true,
-        "**/*.egg-info": true,
-        "**/*.pyc": true
-    },
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
-    "[jinja-sql]": {
-        "editor.formatOnSave": false
-    },
     "[yaml]": {
         "editor.tabSize": 2,
         "editor.insertSpaces": true
