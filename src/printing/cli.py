@@ -93,8 +93,8 @@ class PrintingCli:
         )
         subparser.add_argument(
             "--type",
-            required=False,
-            help="'transacton' for insider transactions.",
+            required=True,
+            help="'transacton' for insider transactions, 'buy' for purchase information.",
         )
         subparser.add_argument(
             "--count",

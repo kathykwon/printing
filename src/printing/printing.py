@@ -157,13 +157,13 @@ class Printing:
         df = self.spark.createDataFrame(self.ticker.insider_transactions)
 
         df = df.select(
+            F.to_date(F.col("Start Date")).alias("date"),
             F.col("Shares").alias("share_count"),
-            F.col("Value"),
-            F.col("Text").alias("transaction_description"),
+            F.format_number("Value", 0).alias("USD"),
             F.col("Insider").alias("name"),
             F.col("Position").alias("job_title"),
-            F.col("Start Date").alias("transaction_date"),
-        ).withColumn("USD", F.format_number("Value", 0))
+            F.col("Text").alias("description"),
+        )
 
         self.display(df, count)
         return df
