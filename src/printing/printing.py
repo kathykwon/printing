@@ -64,6 +64,7 @@ class Printing:
     @property
     def price(self) -> dict:
         data = {
+            "symbol": self._symbol,
             "current_price": self.ticker.info["currentPrice"],
             "open": self.ticker.info["open"],
             "day_high": self.ticker.info["dayHigh"],
