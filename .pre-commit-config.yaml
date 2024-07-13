@@ -20,16 +20,16 @@ repos:
         args: ["--py310-plus"]
         exclude: src/afresh/havasu/utils/config|src/afresh/havasu/lib/dag
   - repo: https://github.com/psf/black
-    rev: 24.3.0
+    rev: 24.4.2
     hooks:
       - id: black
-  - repo: https://github.com/myint/docformatter
-    rev: v1.4
-    hooks:
-      - id: docformatter
-        args: ["--in-place", "--wrap-summaries=100", "--wrap-descriptions=100"]
   - repo: https://github.com/PyCQA/isort
     rev: 5.13.2
     hooks:
       # Sorts all dependencies
       - id: isort
+  - repo: https://github.com/myint/docformatter
+    rev: v1.4
+    hooks:
+      - id: docformatter
+        args: ["--in-place", "--wrap-summaries=100", "--wrap-descriptions=100"]

@@ -1,13 +1,19 @@
 [tool.poetry]
 name = "printing"
 version = "0.1.0"
-description = ""
-authors = ["Your Name <you@example.com>"]
+description = "printing g's"
+authors = ["Kathy <krispleaf.co@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
+python-dotenv = "^1.0.1"
+yfinance = "^0.2.40"
 
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+isort = "^5.13.2"
 
 [build-system]
 requires = ["poetry-core"]
