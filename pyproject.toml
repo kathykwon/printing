@@ -10,7 +10,7 @@ packages = [{include = "printing", from = "src"}]
 python = "^3.12"
 python-dotenv = "^1.0.1"
 yfinance = "^0.2.41"
-numpy = "^2.0.0"
+numpy = "^2.0.1"
 pyspark = "^3.5.1"
 setuptools = "^71.1.0"
 
