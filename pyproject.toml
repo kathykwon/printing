@@ -12,7 +12,7 @@ python-dotenv = "^1.0.1"
 yfinance = "^0.2.41"
 numpy = "^2.0.1"
 pyspark = "^3.5.1"
-setuptools = "^71.1.0"
+setuptools = "^72.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
