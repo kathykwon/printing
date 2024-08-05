@@ -16,7 +16,7 @@ setuptools = "^71.1.0"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.4.2"
+black = "^24.8.0"
 isort = "^5.13.2"
 
 [tool.poetry.scripts]
